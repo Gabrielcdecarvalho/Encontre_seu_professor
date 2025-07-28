@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Horários - Biomedicina 2025/2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #2980b9;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            background: var(--secondary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .tab-button.active {
+            background: var(--secondary);
+        }
+
+        .tab-button:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+
+        .professor-list {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .professor-list h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .professor-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .professor-item:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .professor-item.active {
+            background: var(--secondary);
+        }
+
+        .professor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--info);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .schedule-grid {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .schedule-grid h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .period-btn.active {
+            background: var(--secondary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(44, 62, 80, 0.7);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(52, 152, 219, 0.3);
+            font-weight: 600;
+        }
+
+        .time-cell {
+            background: rgba(52, 152, 219, 0.2);
+            font-weight: 500;
+        }
+
+        .class-cell {
+            background: rgba(39, 174, 96, 0.15);
+            vertical-align: top;
+            min-width: 180px;
+        }
+
+        .class-cell.ead {
+            background: rgba(243, 156, 18, 0.15);
+        }
+
+        .class-cell .discipline {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .class-cell .professor {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .class-cell .code {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            margin-top: 3px;
+        }
+
+        .timetable-section {
+            margin-bottom: 40px;
+        }
+
+        .timetable-section h3 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exchange-section {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .exchange-section h2 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exchange-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .exchange-btn {
+            grid-column: span 2;
+            padding: 15px;
+            background: var(--warning);
+            border: none;
+            border-radius: var(--border-radius);
+            color: var(--dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exchange-btn:hover {
+            background: #e67e22;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            background: rgba(44, 62, 80, 0.7);
+        }
+
+        .result-box.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .result-box.error {
+            border-left: 4px solid var(--accent);
+        }
+
+        .result-box h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #bdc3c7;
+            margin-top: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsividade */
+        @media (max-width: 1100px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .professor-list {
+                max-height: 300px;
+            }
+            
+            .exchange-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .exchange-btn {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                min-width: 100%;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div>
+                    <h1>Dashboard de Horários - Biomedicina</h1>
+                    <p>Semestre 2025/2 - Controle de Professores e Troca de Horários</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="horarios-tab">
+                <i class="fas fa-table"></i> Grade de Horários
+            </button>
+            <button class="tab-button" data-tab="professor-tab">
+                <i class="fas fa-user-tie"></i> Horário do Professor
+            </button>
+            <button class="tab-button" data-tab="exchange-tab">
+                <i class="fas fa-exchange-alt"></i> Troca de Horários
+            </button>
+        </div>
+
+        <div id="horarios-tab" class="tab-content active">
+            <div class="timetable-section">
+                <h3><i class="fas fa-sun"></i> 1º e 2º Período - MANHÃ</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda-feira</th>
+                                <th>Terça-feira</th>
+                                <th>Quarta-feira</th>
+                                <th>Quinta-feira</th>
+                                <th>Sexta-feira</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="time-cell">8:25 - 09:40</td>
+                                <td class="class-cell">
+                                    <div class="discipline">COLETA DE MATERIAL BIOLOGICO</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td></td>
+                                <td></td>
+                                <td></td>
+                                <td><td class="class-cell ead">
+                                    <div class="discipline">COMUNICACAO E EXPRESSAO</div>
+                                    <div class="professor">EAD</div></td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">09:40 - 10:00</td>
+                                <td colspan="5" style="text-align: center; background: rgba(127, 140, 141, 0.2);">INTERVALO</td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">10:00 - 11:15</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Química Geral (teoria e prática)</div>
+                                    <div class="professor">Carina</div>
+                                    <div class="code">036701</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">FISIOLOGIA GERAL</div>
+                                    <div class="professor">Bárbara</div>
+                                    <div class="code">80263</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">ANATOMIA HUMANA</div>
+                                    <div class="professor">Fernanda</div>
+                                    <div class="code">986682</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">CITOLOGIA</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">BIOESTATÍSTICA APLIC A BIOMED</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">11:15 - 12:30</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Química Geral (teoria e prática)</div>
+                                    <div class="professor">Carina</div>
+                                    <div class="code">036701</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">FISIOLOGIA GERAL</div>
+                                    <div class="professor">Bárbara</div>
+                                    <div class="code">80263</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">ANATOMIA HUMANA</div>
+                                    <div class="professor">Fernanda</div>
+                                    <div class="code">986682</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">CITOLOGIA</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="timetable-section">
+                <h3><i class="fas fa-moon"></i> 1º e 2º Período - NOITE</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda-feira</th>
+                                <th>Terça-feira</th>
+                                <th>Quarta-feira</th>
+                                <th>Quinta-feira</th>
+                                <th>Sexta-feira</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="time-cell">17:55 - 19:10</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Química Geral (prática) P/C</div>
+                                    <div class="professor">Carina</div>
+                                    <div class="code">036701</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">COLETA DE MATERIAL BIOLOGICO</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">COMUNICACAO E EXPRESSAO</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">ANATOMIA HUMANA (prática) P/C</div>
+                                    <div class="professor">Marília</div>
+                                    <div class="code">104269</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">BIOESTATÍSTICA APLIC A BIOMED</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">19:10 - 20:25</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Química Geral (teórica)</div>
+                                    <div class="professor">Carina</div>
+                                    <div class="code">036701</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">FISIOLOGIA GERAL</div>
+                                    <div class="professor">Bárbara</div>
+                                    <div class="code">80263</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">CITOLOGIA</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">ANATOMIA HUMANA (teórica)</div>
+                                    <div class="professor">Marília</div>
+                                    <div class="code">104269</div>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">20:25 - 20:45</td>
+                                <td colspan="5" style="text-align: center; background: rgba(127, 140, 141, 0.2);">INTERVALO</td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">20:45 - 22:00</td>
+                                <td></td>
+                                <td class="class-cell">
+                                    <div class="discipline">FISIOLOGIA GERAL</div>
+                                    <div class="professor">Bárbara</div>
+                                    <div class="code">80263</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">CITOLOGIA</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="timetable-section">
+                <h3><i class="fas fa-sun"></i> 3º e 4º Período - MANHÃ</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda-feira</th>
+                                <th>Terça-feira</th>
+                                <th>Quarta-feira</th>
+                                <th>Quinta-feira</th>
+                                <th>Sexta-feira</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="time-cell">8:25 - 09:40</td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">BIOMEDICINA FORENSE</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Citopatologia</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Fluidos Corporais</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Farmacologia Aplicada a Biomedicina (Teórica)</div>
+                                    <div class="professor">Lívia</div>
+                                    <div class="code">027621</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Bioquimica Metabólica</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">09:40 - 10:00</td>
+                                <td colspan="5" style="text-align: center; background: rgba(127, 140, 141, 0.2);">INTERVALO</td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">10:00 - 11:15</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Biologia Molecular Aplicada a Biomedicina</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">CITOPATOLOGIA ONCOTICA</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">CIENCIAS SOCIAIS</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Farmacologia Aplicada a Biomedicina (Prática)</div>
+                                    <div class="professor">Lívia</div>
+                                    <div class="code">027621</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Bioquimica Metabólica</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">11:15 - 12:30</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Biologia Molecular Aplicada a Biomedicina</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">DIREITOS HUMANOS</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">LIBRAS - LINGUA BRASILEIRA DE SINAIS</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="timetable-section">
+                <h3><i class="fas fa-moon"></i> 3º e 4º Período - NOITE</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Horário</th>
+                                <th>Segunda-feira</th>
+                                <th>Terça-feira</th>
+                                <th>Quarta-feira</th>
+                                <th>Quinta-feira</th>
+                                <th>Sexta-feira</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="time-cell">18:55 - 19:10</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Bioquimica Metabólica Prática (P/C)</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Farmacologia Aplicada a Biomedicina (Prática)</div>
+                                    <div class="professor">Ana Paula</div>
+                                    <div class="code">104561</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">BIOMEDICINA FORENSE</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">CIENCIAS SOCIAIS</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">LIBRAS - LINGUA BRASILEIRA DE SINAIS</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">19:10 - 20:25</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Bioquimica Metabólica Prática (P/A)</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Farmacologia Aplicada a Biomedicina (Teórica)</div>
+                                    <div class="professor">Ana Paula</div>
+                                    <div class="code">104561</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">CITOPATOLOGIA ONCOTICA</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Biologia Molecular Aplicada a Biomedicina</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Bioquimica Metabólica Teórica</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">20:25 - 20:45</td>
+                                <td colspan="5" style="text-align: center; background: rgba(127, 140, 141, 0.2);">INTERVALO</td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">20:45 - 22:00</td>
+                                <td class="class-cell">
+                                    <div class="discipline">Bioquimica Metabólica Prática (P/B)</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Fluidos Corporais</div>
+                                    <div class="professor">Ana Paula</div>
+                                    <div class="code">104561</div>
+                                </td>
+                                <td class="class-cell ead">
+                                    <div class="discipline">DIREITOS HUMANOS</div>
+                                    <div class="professor">EAD</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Biologia Molecular Aplicada a Biomedicina</div>
+                                    <div class="professor">Gabriel</div>
+                                    <div class="code">233808</div>
+                                </td>
+                                <td class="class-cell">
+                                    <div class="discipline">Citopatologia</div>
+                                    <div class="professor">Luciana</div>
+                                    <div class="code">233744</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="professor-tab" class="tab-content">
+            <div class="dashboard-container">
+                <div class="professor-list">
+                    <h2><i class="fas fa-chalkboard-teacher"></i> Professores</h2>
+                    <div class="professor-item active" data-professor="Ana Paula">
+                        <div class="professor-avatar">AP</div>
+                        <div>Ana Paula</div>
+                    </div>
+                    <div class="professor-item" data-professor="Bárbara">
+                        <div class="professor-avatar">B</div>
+                        <div>Bárbara</div>
+                    </div>
+                    <div class="professor-item" data-professor="Carina">
+                        <div class="professor-avatar">C</div>
+                        <div>Carina</div>
+                    </div>
+                    <div class="professor-item" data-professor="EAD">
+                        <div class="professor-avatar">EA</div>
+                        <div>EAD</div>
+                    </div>
+                    <div class="professor-item" data-professor="Fernanda">
+                        <div class="professor-avatar">F</div>
+                        <div>Fernanda</div>
+                    </div>
+                    <div class="professor-item" data-professor="Gabriel">
+                        <div class="professor-avatar">G</div>
+                        <div>Gabriel</div>
+                    </div>
+                    <div class="professor-item" data-professor="Lívia">
+                        <div class="professor-avatar">LÍ</div>
+                        <div>Lívia</div>
+                    </div>
+                    <div class="professor-item" data-professor="Luciana">
+                        <div class="professor-avatar">LU</div>
+                        <div>Luciana</div>
+                    </div>
+                    <div class="professor-item" data-professor="Marília">
+                        <div class="professor-avatar">M</div>
+                        <div>Marília</div>
+                    </div>
+                </div>
+                
+                <div class="schedule-grid">
+                    <h2><i class="fas fa-calendar-alt"></i> Horário de <span id="prof-name">Ana Paula</span></h2>
+                    <div class="period-selector">
+                        <button class="period-btn active" data-period="all">Todos</button>
+                        <button class="period-btn" data-period="manha">Manhã</button>
+                        <button class="period-btn" data-period="noite">Noite</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Período/Turno</th>
+                                    <th>Dia</th>
+                                    <th>Horário</th>
+                                    <th>Disciplina</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prof-schedule">
+                                <!-- Os dados serão preenchidos via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="exchange-tab" class="tab-content">
+            <div class="exchange-section">
+                <h2><i class="fas fa-exchange-alt"></i> Sistema de Troca de Horários</h2>
+                <div class="exchange-form">
+                    <div>
+                        <h3><i class="fas fa-user"></i> Professor 1</h3>
+                        <div class="form-group">
+                            <label for="professor1">Professor:</label>
+                            <select id="professor1">
+                                <option value="Ana Paula">Ana Paula</option>
+                                <option value="Bárbara">Bárbara</option>
+                                <option value="Carina">Carina</option>
+                                <option value="Gabriel">Gabriel</option>
+                                <option value="Lívia">Lívia</option>
+                                <option value="Luciana">Luciana</option>
+                                <option value="Marília">Marília</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="class1">Disciplina/Horário:</label>
+                            <select id="class1">
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3><i class="fas fa-user"></i> Professor 2</h3>
+                        <div class="form-group">
+                            <label for="professor2">Professor:</label>
+                            <select id="professor2">
+                                <option value="Gabriel">Gabriel</option>
+                                <option value="Ana Paula">Ana Paula</option>
+                                <option value="Bárbara">Bárbara</option>
+                                <option value="Carina">Carina</option>
+                                <option value="Lívia">Lívia</option>
+                                <option value="Luciana">Luciana</option>
+                                <option value="Marília">Marília</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="class2">Disciplina/Horário:</label>
+                            <select id="class2">
+                                <!-- Opções serão preenchidas via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button class="exchange-btn" id="check-exchange">
+                        <i class="fas fa-sync-alt"></i> Verificar Possibilidade de Troca
+                    </button>
+                </div>
+                
+                <div class="result-box success" id="success-box" style="display: none;">
+                    <h3><i class="fas fa-check-circle"></i> Troca Viável</h3>
+                    <p id="success-message"></p>
+                </div>
+                
+                <div class="result-box error" id="error-box" style="display: none;">
+                    <h3><i class="fas fa-exclamation-circle"></i> Troca Não Viável</h3>
+                    <p id="error-message"></p>
+                    <p>Sugerimos verificar outros horários disponíveis.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Sistema de Gerenciamento de Horários - Biomedicina 2025/2</p>
+            <p>Desenvolvido para facilitar a organização e troca de horários entre professores</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons and tabs
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding tab
+                    button.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Professor schedule switching
+            const professorItems = document.querySelectorAll('.professor-item');
+            const profNameElement = document.getElementById('prof-name');
+            
+            professorItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const professor = this.getAttribute('data-professor');
+                    
+                    // Remove active class from all items
+                    professorItems.forEach(item => item.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Update professor name
+                    profNameElement.textContent = professor;
+                    
+                    // Update schedule table
+                    updateProfessorSchedule(professor);
+                });
+            });
+            
+            // Period selector
+            const periodButtons = document.querySelectorAll('.period-btn');
+            periodButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const period = this.getAttribute('data-period');
+                    
+                    // Remove active class from all buttons
+                    periodButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Filter schedule
+                    filterScheduleByPeriod(period);
+                });
+            });
+            
+            // Professor schedule data (consistente com a grade)
+            const professorSchedules = {
+                "Ana Paula": [
+                    { periodo: "3º e 4º Período - NOITE", dia: "Terça-feira", horario: "18:55 - 19:10", disciplina: "Farmacologia Aplicada a Biomedicina (Prática)" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Terça-feira", horario: "19:10 - 20:25", disciplina: "Farmacologia Aplicada a Biomedicina (Teórica)" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Terça-feira", horario: "20:45 - 22:00", disciplina: "Fluidos Corporais" }
+                ],
+                "Bárbara": [
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Terça-feira", horario: "10:00 - 11:15", disciplina: "FISIOLOGIA GERAL" },
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Terça-feira", horario: "11:15 - 12:30", disciplina: "FISIOLOGIA GERAL" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Terça-feira", horario: "19:10 - 20:25", disciplina: "FISIOLOGIA GERAL" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Terça-feira", horario: "20:45 - 22:00", disciplina: "FISIOLOGIA GERAL" }
+                ],
+                "Carina": [
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Segunda-feira", horario: "10:00 - 11:15", disciplina: "Química Geral (teoria e prática)" },
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Segunda-feira", horario: "11:15 - 12:30", disciplina: "Química Geral (teoria e prática)" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Segunda-feira", horario: "17:55 - 19:10", disciplina: "Química Geral (prática) P/C" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Segunda-feira", horario: "19:10 - 20:25", disciplina: "Química Geral (teórica)" }
+                ],
+                "Gabriel": [
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Segunda-feira", horario: "8:25 - 09:40", disciplina: "COLETA DE MATERIAL BIOLOGICO" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Terça-feira", horario: "17:55 - 19:10", disciplina: "COLETA DE MATERIAL BIOLOGICO" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Segunda-feira", horario: "10:00 - 11:15", disciplina: "Biologia Molecular Aplicada a Biomedicina" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Segunda-feira", horario: "11:15 - 12:30", disciplina: "Biologia Molecular Aplicada a Biomedicina" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Segunda-feira", horario: "18:55 - 19:10", disciplina: "Bioquimica Metabólica Prática (P/C)" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Segunda-feira", horario: "19:10 - 20:25", disciplina: "Bioquimica Metabólica Prática (P/A)" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Segunda-feira", horario: "20:45 - 22:00", disciplina: "Bioquimica Metabólica Prática (P/B)" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Quinta-feira", horario: "19:10 - 20:25", disciplina: "Biologia Molecular Aplicada a Biomedicina" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Quinta-feira", horario: "20:45 - 22:00", disciplina: "Biologia Molecular Aplicada a Biomedicina" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Sexta-feira", horario: "19:10 - 20:25", disciplina: "Bioquimica Metabólica Teórica" }
+                ],
+                "Lívia": [
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Quinta-feira", horario: "8:25 - 09:40", disciplina: "Farmacologia Aplicada a Biomedicina (Teórica)" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Quinta-feira", horario: "10:00 - 11:15", disciplina: "Farmacologia Aplicada a Biomedicina (Prática)" }
+                ],
+                "Luciana": [
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Quinta-feira", horario: "10:00 - 11:15", disciplina: "CITOLOGIA" },
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Quinta-feira", horario: "11:15 - 12:30", disciplina: "CITOLOGIA" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Quarta-feira", horario: "19:10 - 20:25", disciplina: "CITOLOGIA" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Quarta-feira", horario: "20:45 - 22:00", disciplina: "CITOLOGIA" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Terça-feira", horario: "8:25 - 09:40", disciplina: "Citopatologia" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Quarta-feira", horario: "8:25 - 09:40", disciplina: "Fluidos Corporais" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Sexta-feira", horario: "8:25 - 09:40", disciplina: "Bioquimica Metabólica" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Sexta-feira", horario: "10:00 - 11:15", disciplina: "Bioquimica Metabólica" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Sexta-feira", horario: "20:45 - 22:00", disciplina: "Citopatologia" }
+                ],
+                "Marília": [
+                    { periodo: "1º e 2º Período - NOITE", dia: "Quinta-feira", horario: "17:55 - 19:10", disciplina: "ANATOMIA HUMANA (prática) P/C" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Quinta-feira", horario: "19:10 - 20:25", disciplina: "ANATOMIA HUMANA (teórica)" }
+                ],
+                "Fernanda": [
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Quarta-feira", horario: "10:00 - 11:15", disciplina: "ANATOMIA HUMANA" },
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Quarta-feira", horario: "11:15 - 12:30", disciplina: "ANATOMIA HUMANA" }
+                ],
+                "EAD": [
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Sexta-feira", horario: "8:25 - 09:40", disciplina: "COMUNICACAO E EXPRESSAO" },
+                    { periodo: "1º e 2º Período - MANHÃ", dia: "Sexta-feira", horario: "10:00 - 11:15", disciplina: "BIOESTATÍSTICA APLIC A BIOMED" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Quarta-feira", horario: "17:55 - 19:10", disciplina: "COMUNICACAO E EXPRESSAO" },
+                    { periodo: "1º e 2º Período - NOITE", dia: "Sexta-feira", horario: "17:55 - 19:10", disciplina: "BIOESTATÍSTICA APLIC A BIOMED" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Segunda-feira", horario: "8:25 - 09:40", disciplina: "BIOMEDICINA FORENSE" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Terça-feira", horario: "10:00 - 11:15", disciplina: "CITOPATOLOGIA ONCOTICA" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Quarta-feira", horario: "10:00 - 11:15", disciplina: "CIENCIAS SOCIAIS" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Terça-feira", horario: "11:15 - 12:30", disciplina: "DIREITOS HUMANOS" },
+                    { periodo: "3º e 4º Período - MANHÃ", dia: "Quarta-feira", horario: "11:15 - 12:30", disciplina: "LIBRAS - LINGUA BRASILEIRA DE SINAIS" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Quarta-feira", horario: "18:55 - 19:10", disciplina: "BIOMEDICINA FORENSE" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Quarta-feira", horario: "19:10 - 20:25", disciplina: "CITOPATOLOGIA ONCOTICA" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Quarta-feira", horario: "20:45 - 22:00", disciplina: "DIREITOS HUMANOS" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Quinta-feira", horario: "18:55 - 19:10", disciplina: "CIENCIAS SOCIAIS" },
+                    { periodo: "3º e 4º Período - NOITE", dia: "Sexta-feira", horario: "18:55 - 19:10", disciplina: "LIBRAS - LINGUA BRASILEIRA DE SINAIS" }
+                ]
+            };
+            
+            // Horários disponíveis para troca
+            const classOptions = {
+                "Ana Paula": [
+                    { id: "farm-pra-noite-ter", text: "Farmacologia Aplicada (Prática) - Terça 18:55-19:10", dia: "Terça-feira", horario: "18:55 - 19:10", periodo: "3º e 4º Período - NOITE" },
+                    { id: "farm-teo-noite-ter", text: "Farmacologia Aplicada (Teórica) - Terça 19:10-20:25", dia: "Terça-feira", horario: "19:10 - 20:25", periodo: "3º e 4º Período - NOITE" },
+                    { id: "fluidos-noite-ter", text: "Fluidos Corporais - Terça 20:45-22:00", dia: "Terça-feira", horario: "20:45 - 22:00", periodo: "3º e 4º Período - NOITE" }
+                ],
+                "Gabriel": [
+                    { id: "bioq-pra-noite-seg", text: "Bioquimica Prática (P/C) - Segunda 18:55-19:10", dia: "Segunda-feira", horario: "18:55 - 19:10", periodo: "3º e 4º Período - NOITE" },
+                    { id: "bioq-pra-noite-seg2", text: "Bioquimica Prática (P/A) - Segunda 19:10-20:25", dia: "Segunda-feira", horario: "19:10 - 20:25", periodo: "3º e 4º Período - NOITE" },
+                    { id: "bioq-pra-noite-seg3", text: "Bioquimica Prática (P/B) - Segunda 20:45-22:00", dia: "Segunda-feira", horario: "20:45 - 22:00", periodo: "3º e 4º Período - NOITE" },
+                    { id: "bioq-teo-noite-sex", text: "Bioquimica Metabólica Teórica - Sexta 19:10-20:25", dia: "Sexta-feira", horario: "19:10 - 20:25", periodo: "3º e 4º Período - NOITE" }
+                ],
+                "Lívia": [
+                    { id: "farm-teo-manha-qui", text: "Farmacologia Aplicada (Teórica) - Quinta 8:25-09:40", dia: "Quinta-feira", horario: "8:25 - 09:40", periodo: "3º e 4º Período - MANHÃ" },
+                    { id: "farm-pra-manha-qui", text: "Farmacologia Aplicada (Prática) - Quinta 10:00-11:15", dia: "Quinta-feira", horario: "10:00 - 11:15", periodo: "3º e 4º Período - MANHÃ" }
+                ],
+                "Luciana": [
+                    { id: "citologia-manha-qui", text: "Citologia - Quinta 10:00-11:15", dia: "Quinta-feira", horario: "10:00 - 11:15", periodo: "1º e 2º Período - MANHÃ" },
+                    { id: "citopatologia-manha-ter", text: "Citopatologia - Terça 8:25-09:40", dia: "Terça-feira", horario: "8:25 - 09:40", periodo: "3º e 4º Período - MANHÃ" },
+                    { id: "fluidos-manha-qua", text: "Fluidos Corporais - Quarta 8:25-09:40", dia: "Quarta-feira", horario: "8:25 - 09:40", periodo: "3º e 4º Período - MANHÃ" }
+                ],
+                "Carina": [
+                    { id: "quimica-manha-seg", text: "Química Geral - Segunda 10:00-11:15", dia: "Segunda-feira", horario: "10:00 - 11:15", periodo: "1º e 2º Período - MANHÃ" },
+                    { id: "quimica-noite-seg", text: "Química Geral (prática) - Segunda 17:55-19:10", dia: "Segunda-feira", horario: "17:55 - 19:10", periodo: "1º e 2º Período - NOITE" }
+                ],
+                "Bárbara": [
+                    { id: "fisiologia-manha-ter", text: "Fisiologia Geral - Terça 10:00-11:15", dia: "Terça-feira", horario: "10:00 - 11:15", periodo: "1º e 2º Período - MANHÃ" },
+                    { id: "fisiologia-noite-ter", text: "Fisiologia Geral - Terça 19:10-20:25", dia: "Terça-feira", horario: "19:10 - 20:25", periodo: "1º e 2º Período - NOITE" }
+                ],
+                "Marília": [
+                    { id: "anatomia-noite-qui", text: "Anatomia Humana - Quinta 17:55-19:10", dia: "Quinta-feira", horario: "17:55 - 19:10", periodo: "1º e 2º Período - NOITE" },
+                    { id: "anatomia-teo-noite-qui", text: "Anatomia Humana (teórica) - Quinta 19:10-20:25", dia: "Quinta-feira", horario: "19:10 - 20:25", periodo: "1º e 2º Período - NOITE" }
+                ],
+                "Fernanda": [
+                    { id: "anatomia-manha-qua", text: "Anatomia Humana - Quarta 10:00-11:15", dia: "Quarta-feira", horario: "10:00 - 11:15", periodo: "1º e 2º Período - MANHÃ" }
+                ]
+            };
+            
+            // Atualizar opções de horários quando o professor é alterado
+            function updateClassOptions(selectId, professor) {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '';
+                
+                if (classOptions[professor]) {
+                    classOptions[professor].forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.id;
+                        opt.textContent = option.text;
+                        select.appendChild(opt);
+                    });
+                }
+            }
+            
+            // Inicializar opções de horários
+            document.getElementById('professor1').addEventListener('change', function() {
+                updateClassOptions('class1', this.value);
+            });
+            
+            document.getElementById('professor2').addEventListener('change', function() {
+                updateClassOptions('class2', this.value);
+            });
+            
+            // Inicializar opções
+            updateClassOptions('class1', 'Ana Paula');
+            updateClassOptions('class2', 'Gabriel');
+            
+            // Update professor schedule table
+            function updateProfessorSchedule(professor) {
+                const scheduleBody = document.getElementById('prof-schedule');
+                const schedule = professorSchedules[professor] || [];
+                
+                scheduleBody.innerHTML = '';
+                
+                if (schedule.length === 0) {
+                    scheduleBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px;">
+                                Nenhum horário encontrado para este professor
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                schedule.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.periodo}</td>
+                        <td>${item.dia}</td>
+                        <td>${item.horario}</td>
+                        <td>${item.disciplina}</td>
+                    `;
+                    scheduleBody.appendChild(row);
+                });
+            }
+            
+            // Filter schedule by period
+            function filterScheduleByPeriod(period) {
+                const professor = document.querySelector('.professor-item.active').getAttribute('data-professor');
+                const schedule = professorSchedules[professor] || [];
+                const scheduleBody = document.getElementById('prof-schedule');
+                
+                scheduleBody.innerHTML = '';
+                
+                if (schedule.length === 0) {
+                    scheduleBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px;">
+                                Nenhum horário encontrado para este professor
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                const filteredSchedule = schedule.filter(item => {
+                    if (period === 'all') return true;
+                    if (period === 'manha') return item.periodo.includes('MANHÃ');
+                    if (period === 'noite') return item.periodo.includes('NOITE');
+                    return true;
+                });
+                
+                if (filteredSchedule.length === 0) {
+                    scheduleBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px;">
+                                Nenhum horário encontrado para este período
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                filteredSchedule.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.periodo}</td>
+                        <td>${item.dia}</td>
+                        <td>${item.horario}</td>
+                        <td>${item.disciplina}</td>
+                    `;
+                    scheduleBody.appendChild(row);
+                });
+            }
+            
+            // Verificar possibilidade de troca
+            document.getElementById('check-exchange').addEventListener('click', function() {
+                const professor1 = document.getElementById('professor1').value;
+                const class1Id = document.getElementById('class1').value;
+                const professor2 = document.getElementById('professor2').value;
+                const class2Id = document.getElementById('class2').value;
+                
+                // Encontrar os detalhes dos horários selecionados
+                const class1 = classOptions[professor1].find(c => c.id === class1Id);
+                const class2 = classOptions[professor2].find(c => c.id === class2Id);
+                
+                // Verificar conflitos
+                const professor1Conflict = hasConflict(professor1, class2);
+                const professor2Conflict = hasConflict(professor2, class1);
+                
+                // Elementos de resultado
+                const successBox = document.getElementById('success-box');
+                const errorBox = document.getElementById('error-box');
+                const successMessage = document.getElementById('success-message');
+                const errorMessage = document.getElementById('error-message');
+                
+                if (!professor1Conflict && !professor2Conflict) {
+                    // Troca viável
+                    successMessage.textContent = 
+                        `A troca entre ${professor1} (${class1.text}) e ${professor2} (${class2.text}) é possível. 
+                         Nenhum conflito de horário detectado. Ambos os professores estão livres nos novos horários.`;
+                    successBox.style.display = 'block';
+                    errorBox.style.display = 'none';
+                } else {
+                    // Troca não viável
+                    if (professor1Conflict) {
+                        errorMessage.textContent = 
+                            `O professor ${professor1} já tem uma aula agendada no horário proposto (${class2.horario} na ${class2.dia}).`;
+                    } else if (professor2Conflict) {
+                        errorMessage.textContent = 
+                            `O professor ${professor2} já tem uma aula agendada no horário proposto (${class1.horario} na ${class1.dia}).`;
+                    }
+                    successBox.style.display = 'none';
+                    errorBox.style.display = 'block';
+                }
+            });
+            
+            // Verificar se um professor tem conflito em um determinado horário
+            function hasConflict(professor, classInfo) {
+                const schedule = professorSchedules[professor] || [];
+                
+                // Verificar se o professor já tem aula no mesmo dia e horário
+                return schedule.some(item => 
+                    item.dia === classInfo.dia && 
+                    item.horario === classInfo.horario
+                );
+            }
+            
+            // Initialize professor schedule
+            updateProfessorSchedule("Ana Paula");
+        });
+    </script>
+</body>
+</html>
